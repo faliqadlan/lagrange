@@ -1,0 +1,2 @@
+bandingkan dengan nilai analitik untuk theta kecil
+
