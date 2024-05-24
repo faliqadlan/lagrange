@@ -3,6 +3,7 @@ from scipy.integrate import odeint
 import numpy as np
 import math
 
+
 class LagrangeSolver:
     def __init__(self, T, V, qArr):
         self.T = T
@@ -58,6 +59,9 @@ class LagrangeSolver:
         SS: The state-space representation of the system.
         xx: The solution of the system over the given time span.
         """
+
+        # Define the symbol for time
+        t = symbols("t")
 
         # Get the number of equations
         Nq = len(Eq)
