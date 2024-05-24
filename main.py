@@ -135,14 +135,24 @@ def DynamicEqSolver(Eq, qArr, paramSymbolList, paramVal, tSpan, initCnd):
     SS = SS.subs(dict(zip(Q, X)))
 
     # Convert the symbolic state-space representation to a numerical function
-    SS_func = lambdify((X, t), SS.subs(dict(zip(paramSymbolList, paramVal))), "numpy")
+    # Create a dictionary that maps parameter symbols to their values
+    param_mapping = dict(zip(paramSymbolList, paramVal))
+
+    print("param_mapping = ", param_mapping)
+
+    # Substitute the parameter symbols in SS with their values
+    SS_numerical = SS.subs(param_mapping)
+
+    # Convert the symbolic SS_numerical to a numerical function
+    # The function takes two arguments: X and t
+    SS_func = lambdify((X, t), SS_numerical, "numpy")
 
     # Define the ODE system
     def SS_ode(x, t):
         return SS_func(x, t).flatten()
 
     # Solve the ODE system
-    xx = odeint(SS_ode, initCnd, tSpan)
+    xx = odeint(func=SS_ode, y0=initCnd, t=tSpan)
 
     return SS, xx
 
