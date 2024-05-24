@@ -47,13 +47,13 @@ paramVal = [
 
 # Define the time span for which to solve the equations
 tSpan = np.linspace(
-    0, 10, 1000
+    0, 10, 100
 )  # Solve the equations from t=0 to t=10 with 10 points in between
 
 # Define the initial conditions for the generalized coordinates and their derivatives
 initCnd = [
     np.pi / 10,
-    lVal + (mVal * gVal / kVal),
+    1,
     0,
     0,
 ]  # These are just example values, replace with your actual initial conditions
@@ -63,14 +63,15 @@ SS, xx = lagrangeSolver.DynamicEqSolver(Eq, paramSymbolList, paramVal, tSpan, in
 
 # compare with the exact solution
 # Constants
-A = lVal + (mVal * gVal / kVal)  # Amplitude for r, replace with the actual value.
+A = 1  # Amplitude for r, replace with the actual value.
 B = np.pi / 10  # Amplitude for θ, replace with the actual value.
+r0 = lVal + (mVal * gVal) / kVal  # Initial value of r, replace with the actual value.
 phi_1 = 0 # Phase constant for r, replace with the actual value.
 phi_2 = 0  # Phase constant for θ, replace with the actual value.
 t_range = 10  # Adjust time range as needed.
 num_points = 100  # Adjust number of points as needed.
 
-motion = HarmonicMotion(lVal, mVal, gVal, kVal, A, B, phi_1, phi_2, t_range, num_points)
+motion = HarmonicMotion(lVal, mVal, gVal, kVal, A, B, r0, phi_1, phi_2, t_range, num_points)
 rExact = motion.calculate_r()
 thetaExact = motion.calculate_theta()
 

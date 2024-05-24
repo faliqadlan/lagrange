@@ -23,9 +23,3 @@ class Logger:
 
     def log_debug(self, message):
         self.logger.debug(message)
-
-# Create an instance of the Logger class
-logger = Logger()
-
-# Log some messages
-logger.log_debug("Debug message")
