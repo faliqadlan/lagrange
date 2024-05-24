@@ -3,6 +3,7 @@ import numpy as np
 from lagrange import LagrangeSolver
 from exact import HarmonicMotion
 from logger import Logger
+from animation import Animator2
 
 # Create an instance of the Logger class
 logger = Logger()
@@ -34,7 +35,7 @@ paramSymbolList = [m, k, l, g]
 # Define the values for the parameters
 mVal, kVal, lVal, gVal = (
     1,
-    1,
+    10,
     1,
     9.81,
 )  # These are just example values, replace with your actual values
@@ -63,38 +64,44 @@ SS, xx = lagrangeSolver.DynamicEqSolver(Eq, paramSymbolList, paramVal, tSpan, in
 
 # compare with the exact solution
 # Constants
-A = 1  # Amplitude for r, replace with the actual value.
+A = 10 # Amplitude for r, replace with the actual value.
 B = np.pi / 10  # Amplitude for θ, replace with the actual value.
-r0 = 1  # Initial value of r, replace with the actual value.
-phi_1 = 0 # Phase constant for r, replace with the actual value.
+r0 = 0  # Initial value of r, replace with the actual value.
+phi_1 = 0  # Phase constant for r, replace with the actual value.
 phi_2 = 0  # Phase constant for θ, replace with the actual value.
 t_range = 10  # Adjust time range as needed.
 num_points = 100  # Adjust number of points as needed.
 
-motion = HarmonicMotion(lVal, mVal, gVal, kVal, A, B, r0, phi_1, phi_2, t_range, num_points)
+motion = HarmonicMotion(
+    lVal, mVal, gVal, kVal, A, B, r0, phi_1, phi_2, t_range, num_points
+)
 rExact = motion.calculate_r()
 thetaExact = motion.calculate_theta()
 
 # Plot the motion compared to the exact solution
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
-plt.figure(figsize=(12, 6))
+# plt.figure(figsize=(12, 6))
 
-plt.subplot(2, 1, 1)
-plt.plot(tSpan, xx[:, 1], label="Numerical")
-plt.plot(motion.t, rExact, label="Exact")
-plt.title("Plot of r against t")
-plt.xlabel("Time (t)")
-plt.ylabel("r(t)")
-plt.legend()
+# plt.subplot(2, 1, 1)
+# plt.plot(tSpan, xx[:, 1], label="Numerical")
+# plt.plot(motion.t, rExact, label="Exact")
+# plt.title("Plot of r against t")
+# plt.xlabel("Time (t)")
+# plt.ylabel("r(t)")
+# plt.legend()
 
-plt.subplot(2, 1, 2)
-plt.plot(tSpan, xx[:, 0], label="Numerical")
-plt.plot(motion.t, thetaExact, label="Exact")
-plt.title("Plot of θ against t")
-plt.xlabel("Time (t)")
-plt.ylabel("θ(t)")
-plt.legend()
+# plt.subplot(2, 1, 2)
+# plt.plot(tSpan, xx[:, 0], label="Numerical")
+# plt.plot(motion.t, thetaExact, label="Exact")
+# plt.title("Plot of θ against t")
+# plt.xlabel("Time (t)")
+# plt.ylabel("θ(t)")
+# plt.legend()
 
-plt.tight_layout()
-plt.show()
+# plt.tight_layout()
+# plt.show()
+
+# animate the motion
+# Create an instance of the Animator2 class
+animator = Animator2(xx, tSpan)
