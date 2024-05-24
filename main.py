@@ -2,6 +2,7 @@ import logging
 from sympy import symbols, diff, zeros, simplify, Function, lambdify, cos, Matrix, det
 from scipy.integrate import odeint
 import numpy as np
+import math
 
 # Create a logger
 logger = logging.getLogger(__name__)
@@ -54,7 +55,6 @@ def LagrangeDynamicEqDeriver(L, qArr):
     for ii in range(Nq):
         Dq[ii] = qArr[ii].diff()
 
-
     # Initialize the Lagrange's equations of the second kind
     Eq = zeros(Nq, 1)
 
@@ -96,7 +96,7 @@ def DynamicEqSolver(Eq, qArr, paramSymbolList, paramVal, tSpan, initCnd):
     print("Eq = ", Eq)
     print("DDq = ", DDq)
     AA = Eq.jacobian(DDq)
-    print("AA = ",AA)
+    print("AA = ", AA)
 
     # Compute the remaining terms in the equations
     BB = -simplify(Eq - AA * Matrix(DDq))
@@ -119,32 +119,32 @@ def DynamicEqSolver(Eq, qArr, paramSymbolList, paramVal, tSpan, initCnd):
     SS = zeros(2 * Nq, 1)
 
     # Fill in the state-space representation
-    # for ii in range(N):
-    #     SS[ii] = Dq[ii]
-    #     SS[ii + N] = DDQQ[ii]
+    for ii in range(Nq):
+        SS[ii] = Dq[ii]
+        SS[ii + Nq] = DDQQ[ii]
 
-    # Combine the generalized coordinates and their derivatives
-    # Q = qArr + Dq
+    print("SS = ", SS)
 
-    # Define the symbols for the state variables
-    # X = symbols("x:%d" % (2 * N))
+    # Define the symbols for the new variables
+    Q = Matrix([qArr, Dq])
 
-    # Substitute the state variables into the state-space representation
-    # SS = SS.subs(dict(zip(Q, X)))
+    # Define new symbols x
+    X = symbols("x_:{}".format(2 * Nq))
 
-    # Substitute the parameter values into the state-space representation
-    # SS_0 = SS.subs(dict(zip(paramSymbolList, paramVal)))
+    # Substitute q and Dq with x in SS
+    SS = SS.subs(dict(zip(Q, X)))
 
-    # Convert the symbolic state-space representation into a numerical function
-    # SS_ode0 = lambdify((X, symbols("t")), SS_0, "numpy")
+    # Convert the symbolic state-space representation to a numerical function
+    SS_func = lambdify((X, t), SS.subs(dict(zip(paramSymbolList, paramVal))), "numpy")
 
-    # Define the function to be integrated
-    # def SS_ode(t, x):
-    #     x = np.atleast_1d(x)
-    #     return np.array(SS_ode0(*x, t)).flatten()
+    # Define the ODE system
+    def SS_ode(x, t):
+        return SS_func(x, t).flatten()
 
-    # Solve the system of equations over the given time span
-    # xx = odeint(SS_ode, initCnd, tSpan)
+    # Solve the ODE system
+    xx = odeint(SS_ode, initCnd, tSpan)
+
+    return SS, xx
 
 
 # Define the symbols
@@ -180,20 +180,41 @@ paramVal = [
 
 # Define the time span for which to solve the equations
 tSpan = np.linspace(
-    0, 10, 10
+    0, 10, 100
 )  # Solve the equations from t=0 to t=10 with 10 points in between
 
 # Define the initial conditions for the generalized coordinates and their derivatives
 initCnd = [
-    0,
-    0,
+    45 / 180 * math.pi,
+    0.1,
     0,
     0,
 ]  # These are just example values, replace with your actual initial conditions
 
 # Call the DynamicEqSolver function
-DynamicEqSolver(Eq, qArr, paramSymbolList, paramVal, tSpan, initCnd)
+SS, xx = DynamicEqSolver(Eq, qArr, paramSymbolList, paramVal, tSpan, initCnd)
 
 # Print the state-space representation and the solution
-# print(SS)
-# print(xx)
+print(SS)
+print("xx = ", len(xx), len(xx[0]), len(xx[1])  )
+
+# Plot the solutions
+import matplotlib.pyplot as plt
+
+# Create a new figure
+plt.figure()
+
+# Plot the solution for theta
+plt.plot(tSpan, [sol[0] for sol in xx], label="theta")
+
+# Plot the solution for x
+plt.plot(tSpan, [sol[1] for sol in xx], label="x")
+
+# Add labels and title
+plt.xlabel("Time (sec)")
+plt.ylabel("Generalized coordinates")
+plt.title("Solution of the dynamic equations")
+plt.legend()
+
+# Show the plot
+plt.show()
