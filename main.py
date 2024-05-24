@@ -1,9 +1,7 @@
-import logging
-from sympy import symbols, diff, zeros, simplify, Function, lambdify, cos, Matrix, det
-from scipy.integrate import odeint
+from sympy import symbols, Function, cos
 import numpy as np
-import math
 from lagrange import LagrangeSolver
+from exact import HarmonicMotion
 from logger import Logger
 
 # Create an instance of the Logger class
@@ -34,22 +32,28 @@ Eq = lagrangeSolver.LagrangeDynamicEqDeriver()
 paramSymbolList = [m, k, l, g]
 
 # Define the values for the parameters
-paramVal = [
+mVal, kVal, lVal, gVal = (
     1,
-    2,
+    1,
     1,
     9.81,
-]  # These are just example values, replace with your actual values
+)  # These are just example values, replace with your actual values
+paramVal = [
+    mVal,
+    kVal,
+    lVal,
+    gVal,
+]
 
 # Define the time span for which to solve the equations
 tSpan = np.linspace(
-    0, 10, 100
+    0, 10, 1000
 )  # Solve the equations from t=0 to t=10 with 10 points in between
 
 # Define the initial conditions for the generalized coordinates and their derivatives
 initCnd = [
-    15 / 180 * math.pi,
-    0.1,
+    np.pi / 10,
+    lVal + (mVal * gVal / kVal),
     0,
     0,
 ]  # These are just example values, replace with your actual initial conditions
@@ -57,27 +61,39 @@ initCnd = [
 # Call the DynamicEqSolver function
 SS, xx = lagrangeSolver.DynamicEqSolver(Eq, paramSymbolList, paramVal, tSpan, initCnd)
 
-# Print the state-space representation and the solution
-print(SS)
-print("xx = ", len(xx), len(xx[0]), len(xx[1])  )
+# compare with the exact solution
+# Constants
+A = lVal + (mVal * gVal / kVal)  # Amplitude for r, replace with the actual value.
+B = np.pi / 10  # Amplitude for θ, replace with the actual value.
+phi_1 = 0 # Phase constant for r, replace with the actual value.
+phi_2 = 0  # Phase constant for θ, replace with the actual value.
+t_range = 10  # Adjust time range as needed.
+num_points = 100  # Adjust number of points as needed.
 
-# Plot the solutions
+motion = HarmonicMotion(lVal, mVal, gVal, kVal, A, B, phi_1, phi_2, t_range, num_points)
+rExact = motion.calculate_r()
+thetaExact = motion.calculate_theta()
+
+# Plot the motion compared to the exact solution
 import matplotlib.pyplot as plt
 
-# Create a new figure
-plt.figure()
+plt.figure(figsize=(12, 6))
 
-# Plot the solution for theta
-plt.plot(tSpan, [sol[0] for sol in xx], label="theta")
-
-# Plot the solution for r
-plt.plot(tSpan, [sol[1] for sol in xx], label="r")
-
-# Add labels and title
-plt.xlabel("Time (sec)")
-plt.ylabel("Generalized coordinates")
-plt.title("Solution of the dynamic equations")
+plt.subplot(2, 1, 1)
+plt.plot(tSpan, xx[:, 1], label="Numerical")
+plt.plot(motion.t, rExact, label="Exact")
+plt.title("Plot of r against t")
+plt.xlabel("Time (t)")
+plt.ylabel("r(t)")
 plt.legend()
 
-# Show the plot
+plt.subplot(2, 1, 2)
+plt.plot(tSpan, xx[:, 0], label="Numerical")
+plt.plot(motion.t, thetaExact, label="Exact")
+plt.title("Plot of θ against t")
+plt.xlabel("Time (t)")
+plt.ylabel("θ(t)")
+plt.legend()
+
+plt.tight_layout()
 plt.show()
