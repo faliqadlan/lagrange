@@ -30,11 +30,11 @@ class HarmonicMotion:
         self.t = np.linspace(0, t_range, num_points)
 
     def calculate_r(self):
-        r =  self.r0 + self.A * np.cos(np.sqrt(self.k / self.m) * self.t + self.phi_1)
+        r =  self.r0 + self.A * np.cos((np.sqrt(self.k / self.m) * self.t) + self.phi_1)
         return r
 
     def calculate_theta(self):
-        theta = self.B * np.cos(np.sqrt((self.k * self.g) / (self.k * self.l + self.m * self.g)) * self.t + self.phi_2)
+        theta = self.B * np.cos((np.sqrt((self.k * self.g) / (self.k * self.l + self.m * self.g)) * self.t) + self.phi_2)
         return theta
 
     def plot_motion(self):

@@ -53,7 +53,7 @@ tSpan = np.linspace(
 # Define the initial conditions for the generalized coordinates and their derivatives
 initCnd = [
     np.pi / 10,
-    1,
+    lVal + (mVal * gVal / kVal),
     0,
     0,
 ]  # These are just example values, replace with your actual initial conditions
@@ -65,7 +65,7 @@ SS, xx = lagrangeSolver.DynamicEqSolver(Eq, paramSymbolList, paramVal, tSpan, in
 # Constants
 A = 1  # Amplitude for r, replace with the actual value.
 B = np.pi / 10  # Amplitude for θ, replace with the actual value.
-r0 = lVal + (mVal * gVal) / kVal  # Initial value of r, replace with the actual value.
+r0 = 1  # Initial value of r, replace with the actual value.
 phi_1 = 0 # Phase constant for r, replace with the actual value.
 phi_2 = 0  # Phase constant for θ, replace with the actual value.
 t_range = 10  # Adjust time range as needed.
