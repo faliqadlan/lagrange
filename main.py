@@ -47,16 +47,13 @@ def LagrangeDynamicEqDeriver(L, qArr):
     # Lagrangian equation
     L = T - V  # This line seems to be redefining the Lagrangian, it might be an error
 
-    # Initialize the derivatives of the Lagrangian with respect to q and Dq
-    Lq = zeros(Nq, 1)
-    LDq = zeros(Nq, 1)
+    # Initialize the derivatives symbols
+    Dq = zeros(Nq, 1)
 
     # Euler-Lagrange equation
     for ii in range(Nq):
-        # Compute the derivative of q with respect to time
-        Lq[ii] = qArr[ii].diff(t)
-        # Compute the derivative of Lq with respect to time
-        LDq[ii] = Lq[ii].diff(t)
+        Dq[ii] = qArr[ii].diff()
+
 
     # Initialize the Lagrange's equations of the second kind
     Eq = zeros(Nq, 1)
@@ -64,7 +61,7 @@ def LagrangeDynamicEqDeriver(L, qArr):
     # Calculate the Lagrange's equations of the second kind
     for ii in range(Nq):
         # The Euler-Lagrange equation is given by d/dt(∂L/∂q̇) - ∂L/∂q = 0
-        Eq[ii] = diff(diff(L, LDq[ii]), t) - diff(L, qArr[ii])
+        Eq[ii] = diff(diff(L, Dq[ii]), t) - diff(L, qArr[ii])
 
     return Eq
 
@@ -87,60 +84,59 @@ def DynamicEqSolver(Eq, qArr, paramSymbolList, paramVal, tSpan, initCnd):
     """
 
     # Get the number of equations
-    N = len(Eq)
+    Nq = len(Eq)
 
     # Compute the derivative of the generalized coordinates
     Dq = [q.diff() for q in qArr]
-    print(Dq)
 
     # Define the symbols for the second derivatives of the generalized coordinates
-    DDq = symbols("DDq:%d" % N)
-    print(Dq)
+    DDq = [Dq[ii].diff() for ii in range(Nq)]
 
     # Compute the Jacobian of the equations with respect to the second derivatives
+    print("Eq = ", Eq)
+    print("DDq = ", DDq)
     AA = Eq.jacobian(DDq)
-    print(AA)
+    print("AA = ",AA)
 
     # Compute the remaining terms in the equations
     BB = -simplify(Eq - AA * Matrix(DDq))
-    print(BB)
+    print("BB = ", BB)
 
     # Initialize the second derivatives of the generalized coordinates
-    DDQQ = zeros(N, 1)
+    DDQQ = zeros(Nq, 1)
 
     # Compute the determinant of the Jacobian
     DET_AA = det(AA)
+    print("DET_AA = ", DET_AA)
 
     # Solve for the second derivatives of the generalized coordinates
-    for ii in range(N):
+    for ii in range(Nq):
         AAn = AA.copy()
         AAn[:, ii] = BB
         DDQQ[ii] = simplify(det(AAn) / DET_AA)
 
     # Initialize the state-space representation of the system
-    SS = zeros(2 * N, 1)
+    SS = zeros(2 * Nq, 1)
 
     # Fill in the state-space representation
-    for ii in range(N):
-        SS[ii] = Dq[ii]
-        SS[ii + N] = DDQQ[ii]
-
-    print(SS)
+    # for ii in range(N):
+    #     SS[ii] = Dq[ii]
+    #     SS[ii + N] = DDQQ[ii]
 
     # Combine the generalized coordinates and their derivatives
-    Q = qArr + Dq
+    # Q = qArr + Dq
 
     # Define the symbols for the state variables
-    X = symbols("x:%d" % (2 * N))
+    # X = symbols("x:%d" % (2 * N))
 
     # Substitute the state variables into the state-space representation
-    SS = SS.subs(dict(zip(Q, X)))
+    # SS = SS.subs(dict(zip(Q, X)))
 
     # Substitute the parameter values into the state-space representation
-    SS_0 = SS.subs(dict(zip(paramSymbolList, paramVal)))
+    # SS_0 = SS.subs(dict(zip(paramSymbolList, paramVal)))
 
     # Convert the symbolic state-space representation into a numerical function
-    SS_ode0 = lambdify((X, symbols("t")), SS_0, "numpy")
+    # SS_ode0 = lambdify((X, symbols("t")), SS_0, "numpy")
 
     # Define the function to be integrated
     # def SS_ode(t, x):
@@ -149,10 +145,6 @@ def DynamicEqSolver(Eq, qArr, paramSymbolList, paramVal, tSpan, initCnd):
 
     # Solve the system of equations over the given time span
     # xx = odeint(SS_ode, initCnd, tSpan)
-
-    xx = []
-
-    return SS, xx
 
 
 # Define the symbols
@@ -174,7 +166,6 @@ qArr = [theta, x]
 
 # Derive the equations of motion
 Eq = LagrangeDynamicEqDeriver(L, qArr)
-print(Eq)
 
 # Define the symbols for the parameters
 paramSymbolList = [m, k, l, g]
@@ -182,15 +173,15 @@ paramSymbolList = [m, k, l, g]
 # Define the values for the parameters
 paramVal = [
     1,
-    1,
+    2,
     1,
     9.81,
 ]  # These are just example values, replace with your actual values
 
 # Define the time span for which to solve the equations
 tSpan = np.linspace(
-    0, 10, 1000
-)  # Solve the equations from t=0 to t=10 with 1000 points in between
+    0, 10, 10
+)  # Solve the equations from t=0 to t=10 with 10 points in between
 
 # Define the initial conditions for the generalized coordinates and their derivatives
 initCnd = [
@@ -201,8 +192,8 @@ initCnd = [
 ]  # These are just example values, replace with your actual initial conditions
 
 # Call the DynamicEqSolver function
-SS, xx = DynamicEqSolver(Eq, qArr, paramSymbolList, paramVal, tSpan, initCnd)
+DynamicEqSolver(Eq, qArr, paramSymbolList, paramVal, tSpan, initCnd)
 
 # Print the state-space representation and the solution
-print(SS)
-print(xx)
+# print(SS)
+# print(xx)
