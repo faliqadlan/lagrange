@@ -48,7 +48,7 @@ paramVal = [
 
 # Define the time span for which to solve the equations
 t_range = 10  # Adjust time range as needed.
-num_points = 400  # Adjust number of points as needed.
+num_points = 100  # Adjust number of points as needed.
 tSpan = np.linspace(
     0, t_range, num_points
 )  # Solve the equations from t=0 to t=10 with 10 points in between
@@ -108,4 +108,4 @@ plt.show()
 
 # animate the motion
 # Create an instance of the Animator2 class
-# animator = Animator2(xx, tSpan)
+animator = Animator2(xx, tSpan)

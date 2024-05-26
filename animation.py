@@ -49,16 +49,19 @@ def Animator2(X, tt):
         ax.set_title(f"Time: {tt[i]:.2f} sec")
 
         # Save the current frame as a GIF
-        # plt.savefig(f"frame_{i:04d}.png")
+        # plt.savefig(r"d:\OneDrive - UGM 365\Semester Genap 2023-2024\Logika dan Komputasi Simbolik dalam fisika\uts\frame-gif\frame_{i:04d}.png")
 
     # Create the animation
     ani = animation.FuncAnimation(fig, animate, frames=len(tt))
+
+    # Save the animation as a GIF
+    ani.save(r"d:\OneDrive - UGM 365\Semester Genap 2023-2024\Logika dan Komputasi Simbolik dalam fisika\uts\Anim2.gif", writer="pillow", fps=10)
 
     # Show the animation
     plt.show()
 
     # Create a GIF from the saved frames
-    # frames = [Image.open(f"frame_{i:04d}.png") for i in range(len(tt))]
+    # frames = [Image.open(f"./frame-gif/frame_{i:04d}.png") for i in range(len(tt))]
     # frames[0].save(
     #     "Anim2.gif",
     #     format="GIF",
