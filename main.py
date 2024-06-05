@@ -19,9 +19,6 @@ r = Function("r")(t)
 T = 0.5 * m * (r.diff(t) ** 2 + (r * theta.diff(t)) ** 2)
 V = 0.5 * k * (r - l) ** 2 - m * g * r * cos(theta)
 
-# Define the Lagrangian
-L = T - V
-
 # Define the generalized coordinates and their time derivatives
 qArr = [theta, r]
 
